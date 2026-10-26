@@ -1,0 +1,150 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Together | Manutenção</title>
+  <link rel="stylesheet" href="css/style.css">
+ 
+
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-auth-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.8.0/firebase-firestore-compat.js"></script>
+</head>
+<body>
+  <main class="container">
+    <header class="topbar">
+      <h2>TOGETHER <span>MANUTENÇÃO</span></h2>
+      <span class="system-label">PAINEL OPERACIONAL</span>
+    </header>
+
+    <section id="authView" class="panel">
+      <div class="tabs auth-tabs">
+        <button id="showLogin" class="active" type="button">Entrar</button>
+        <button id="showRegister" type="button">Cadastrar</button>
+      </div>
+
+      <form id="loginForm">
+        <h1>Acessar painel</h1>
+        <p class="muted">Entre para gerenciar as ocorrências.</p>
+
+        <label for="loginEmail">E-mail</label>
+        <input id="loginEmail" type="email" autocomplete="username" required>
+
+        <label for="loginPassword">Senha</label>
+        <input id="loginPassword" type="password"
+               autocomplete="current-password" required>
+
+        <button class="primary" type="submit">Entrar</button>
+        <p id="loginMessage" class="message"></p>
+      </form>
+
+      <form id="registerForm" class="hidden">
+        <h1>Cadastro da equipe</h1>
+        <p class="muted">O acesso será liberado após aprovação.</p>
+
+        <label for="registerName">Nome completo</label>
+        <input id="registerName" type="text" maxlength="100" required>
+
+        <label for="registerEmail">E-mail</label>
+        <input id="registerEmail" type="email" autocomplete="email" required>
+
+        <label for="registerPassword">Senha</label>
+        <input id="registerPassword" type="password"
+               minlength="6" autocomplete="new-password" required>
+
+        <button class="primary" type="submit">Criar cadastro</button>
+        <p id="registerMessage" class="message"></p>
+      </form>
+    </section>
+
+    <section id="pendingView" class="panel hidden">
+      <div class="pending-icon">⌛</div>
+      <h1>Cadastro recebido</h1>
+      <p class="muted">Seu cadastro está aguardando aprovação do administrador.</p>
+      <p id="pendingEmail"></p>
+      <button id="pendingLogout" class="secondary" type="button">Sair</button>
+    </section>
+
+    <section id="dashboardView" class="hidden">
+      <div class="dashboard-header">
+        <div>
+          <p class="eyebrow">CENTRAL DE OPERAÇÕES</p>
+          <h1>Ocorrências</h1>
+          <p id="welcomeText" class="muted"></p>
+        </div>
+
+        <div class="header-actions">
+          <button id="soundButton" class="secondary" type="button">
+            ♫ Ativar som
+          </button>
+          <button id="logoutButton" class="secondary" type="button">Sair</button>
+        </div>
+      </div>
+
+      <div class="stats">
+        <div class="stat">
+          <span>Em espera</span>
+          <strong id="countOpen">0</strong>
+        </div>
+        <div class="stat">
+          <span>Em andamento</span>
+          <strong id="countProgress">0</strong>
+        </div>
+        <div class="stat">
+          <span>Atendidos</span>
+          <strong id="countDone">0</strong>
+        </div>
+      </div>
+
+      <p id="dashboardMessage" class="message"></p>
+
+      <nav class="occurrence-tabs" aria-label="Etapas das ocorrências">
+        <button class="occurrence-tab active" data-status="open" type="button">
+          <span class="tab-indicator waiting"></span>
+          Em espera
+          <span id="tabCountOpen" class="tab-count">0</span>
+        </button>
+
+        <button class="occurrence-tab" data-status="progress" type="button">
+          <span class="tab-indicator working"></span>
+          Andamento
+          <span id="tabCountProgress" class="tab-count">0</span>
+        </button>
+
+        <button class="occurrence-tab" data-status="done" type="button">
+          <span class="tab-indicator finished"></span>
+          Histórico
+          <span id="tabCountDone" class="tab-count">0</span>
+        </button>
+      </nav>
+
+      <section class="occurrences-panel">
+        <div class="list-header">
+          <div>
+            <h2 id="listTitle">Chamados em espera</h2>
+            <p id="listSubtitle" class="muted">
+              Ocorrências aguardando um responsável.
+            </p>
+          </div>
+          <span id="connectionStatus" class="connection-status">
+            Conectando...
+          </span>
+        </div>
+
+        <div id="occurrencesList">
+          <div class="empty-state">Carregando ocorrências...</div>
+        </div>
+      </section>
+    </section>
+
+    <footer>Together • Sistema de apoio à manutenção</footer>
+  </main>
+
+  <div id="toast" class="toast hidden" role="status" aria-live="polite"></div>
+
+  <script src="js/firebase-config.js"></script>
+  <script src="js/app.js"></script>
+</body>
+</html>

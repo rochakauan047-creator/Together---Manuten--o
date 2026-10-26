@@ -1,0 +1,97 @@
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    function isAdmin() {
+      return request.auth != null
+        && request.auth.token.email == 'rochakauan047@gmail.com'
+        && request.auth.token.email_verified == true;
+    }
+
+    function isStaff() {
+      return request.auth != null
+        && exists(
+          /databases/$(database)/documents/staffUsers/$(request.auth.uid)
+        )
+        && get(
+          /databases/$(database)/documents/staffUsers/$(request.auth.uid)
+        ).data.active == true
+        && get(
+          /databases/$(database)/documents/staffUsers/$(request.auth.uid)
+        ).data.status == 'approved';
+    }
+
+    match /occurrences/{occurrenceId} {
+      // Mantém o formato de envio do site atual dos visitantes.
+      allow create: if
+        request.resource.data.status == 'open'
+        && request.resource.data.category is string
+        && request.resource.data.location is string
+        && request.resource.data.description is string
+        && request.resource.data.keys().hasOnly([
+          'category',
+          'sectorCode',
+          'location',
+          'description',
+          'status',
+          'createdAt',
+          'history'
+        ]);
+
+      allow read: if isAdmin() || isStaff();
+
+      allow update: if (isAdmin() || isStaff())
+        && request.resource.data.diff(resource.data)
+          .affectedKeys().hasOnly([
+            'status',
+            'updatedAt',
+            'assignedTo',
+            'assignedAt',
+            'completedBy',
+            'completedAt'
+          ])
+        && request.resource.data.status in [
+          'open',
+          'progress',
+          'done'
+        ];
+
+      allow delete: if isAdmin();
+    }
+
+    match /staffUsers/{userId} {
+      allow read: if isAdmin()
+        || (request.auth != null && request.auth.uid == userId);
+
+      // O usuário só pode criar o próprio perfil pendente.
+      allow create: if request.auth != null
+        && request.auth.uid == userId
+        && request.resource.data.keys().hasOnly([
+          'name', 'email', 'active', 'status', 'createdAt'
+        ])
+        && request.resource.data.name is string
+        && request.resource.data.name.size() > 0
+        && request.resource.data.name.size() <= 100
+        && request.resource.data.email == request.auth.token.email
+        && request.resource.data.active == false
+        && request.resource.data.status == 'pending';
+
+      // Só o administrador pode aprovar, editar ou excluir perfis.
+      allow update, delete: if isAdmin();
+    }
+
+    match /access_codes/{codeHash} {
+      allow read, write: if false;
+    }
+
+    match /loginRateLimits/{limitId} {
+      allow read, write: if false;
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}
