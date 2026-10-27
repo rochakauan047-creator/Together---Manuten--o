@@ -515,12 +515,13 @@ $("registerForm").addEventListener("submit", async (event) => {
     credential = await auth.createUserWithEmailAndPassword(email, password);
     await credential.user.updateProfile({ displayName: name });
 
-    await db.collection("staffUsers").doc(credential.user.uid).set({
-      name,
-      email: credential.user.email,
-      active: false,
-      createdAt: firebase.firestore.FieldValue.serverTimestamp()
-    });
+await db.collection("staffUsers").doc(credential.user.uid).set({
+  name,
+  email: credential.user.email,
+  active: false,
+  createdAt: firebase.firestore.FieldValue.serverTimestamp()
+});
+
 
     await auth.signOut();
 
